@@ -8,7 +8,7 @@ module PriorityQueue
                     :rank,
                     :parent,
                     :left_child,
-                    :left_sibling
+                    :left_sibling,
                     :right_sibling
 
   def initialize top_condition, &heap_property
@@ -22,15 +22,13 @@ module PriorityQueue
 
     node = Node.new element, key, 0
 
-    # If there is no head also there is no top (and viceversa).
-    @top = if @head
-      @head.left_sibling, node.right_sibling = node, @head
-      @heap_property[@top, node]
-    else
-      node
-    end
+    @top = if @top
+             order @top, node
+           else
+             node
+           end
 
-    @head = node
+    push node
 
     @references[element] = node
 
@@ -48,7 +46,7 @@ module PriorityQueue
 
     # Not checking if node is a root before comparing it with top;
     # it's cheaper to compare directly.
-    @top = @heap_property[@top, node]
+    @top = order @top, node
 
     element
   end
@@ -69,13 +67,12 @@ module PriorityQueue
     end
 
     @top.right_sibling.left_sibling = @top.left_sibling if @top.right_sibling
-    # @top.left_sibling = nil
-    # @top.right_sibling = nil
+    @top.left_sibling = nil
+    @top.right_sibling = nil
 
     @references.delete element
 
     if node = @top.left_child
-      # @top.left_child = nil
       # @top has no parent node.
       # @top's children conform a linked list to be added to tree's list.
       # The rightmost child links with @head then @top.left_child would be the new head.
@@ -89,14 +86,15 @@ module PriorityQueue
 
       @head.left_sibling, rightmost_sibling.right_sibling = rightmost_sibling, @head
       @head = @top.left_child
+      @top.left_child = nil
     end
 
-    @head = coalesce @head
+    coalesce!
 
-    node = @head
+    node = @top = @head
 
     while node
-      @top = @heap_property[@top, node]
+      @top = order @top, node
 
       node = node.right_sibling
     end
@@ -115,42 +113,102 @@ module PriorityQueue
   private
 
   def sift_up node
-    return node unless node.parent and @heap_property[node, node.parent] == node
+    return node unless node.parent and @heap_property[node, node.parent]
 
     node.parent.rank, node.rank = node.rank, node.parent.rank
 
-    node.parent.left_child, node.left_child = node.left_child,
-      node.parent.left_child == node ? node.parent : node.parent.left_child
+    parent = node.parent
+    parent_parent = node.parent.parent
+    parent_left_sibling = node.parent.left_sibling
+    parent_right_sibling = node.parent.right_sibling
+    parent_left_child = node.parent.left_child
 
-    node.parent.right_sibling, node.right_sibling = node.right_sibling, node.parent.right_sibling
-    node.parent.left_sibling, node.left_sibling = node.left_sibling, node.parent.left_sibling
+    child = node
+    child_left_child = node.left_child
+    child_left_sibling = node.left_sibling
+    child_right_sibling = node.right_sibling
+
+    parent_parent.left_child = child if parent_parent
+    child.parent = parent_parent
+
+    parent_left_sibling.right_sibling = child if parent_left_sibling
+    child.left_sibling = parent_left_sibling
+
+    parent_right_sibling = child if parent_right_sibling
+    child.right_sibling = parent_right_sibling
+
+    child_left_sibling.right_sibling = parent if child_left_sibling
+    parent.left_sibling = child_left_sibling
+
+    child_right_sibling.left_sibling = parent if child_right_sibling
+    parent.right_sibling = child_right_sibling
+
+    child_left_child.parent = parent if child_left_child
+    parent.left_child = child_left_child
+
+    if parent_left_child == child
+      child.left_child = parent
+    else
+      child.left_child = parent_left_child
+    end
+
+    parent.parent = child
+
+    # node.parent.left_child, node.left_child = node.left_child,
+    #   node.parent.left_child == node ? node.parent : node.parent.left_child
+
+    # node.parent.right_sibling, node.right_sibling = node.right_sibling, node.parent.right_sibling
+    # node.parent.left_sibling, node.left_sibling = node.left_sibling, node.parent.left_sibling
 
     # This line must be at the end.
-    node.parent.parent, node.parent = node, node.parent.parent
+    # node.parent.parent, node.parent = node, node.parent.parent
 
     sift_up node
   end
 
-  def coalesce trees
+  def order parent_node, child_node
+    @heap_property[parent_node, child_node] ? parent_node : child_node
+  end
+
+  def pop
+    return unless @head
+
+    node = @head
+    @head = node.right_sibling
+    node.right_sibling = nil
+    @head.left_sibling = nil if @head
+    node
+  end
+
+  def push node
+    if @head
+      node.right_sibling = @head
+      @head.left_sibling = node
+    end
+
+    @head = node
+  end
+
+  def coalesce!
     coalesced_trees = []
 
-    while tree = trees.pop
+    while tree = pop
       if coalesced_tree = coalesced_trees[tree.rank]
-        trees << add(tree, coalesced_tree)
+        push add(tree, coalesced_tree)
         coalesced_trees[tree.rank] = nil
       else
         coalesced_trees[tree.rank] = tree
       end
     end
 
-    coalesced_trees.compact
+    coalesced_trees.compact.each { |tree| push tree }
   end
 
   def add node_one, node_two
     raise 'Both nodes must hold the same rank.' if node_one.rank != node_two.rank
     raise 'Both nodes must be roots (no parents).' if node_one.parent || node_two.parent
 
-    adder_node, addend_node = @heap_property[node_one, node_two]
+    adder_node, addend_node = @heap_property[node_one, node_two] ? [node_one, node_two] : [node_two, node_one]
 
     addend_node.parent = adder_node
 
@@ -159,9 +217,11 @@ module PriorityQueue
 
     addend_node.left_sibling = nil
 
-    # This line must go before than
-    addend_node.right_sibling = adder_node.left_child
-    # this one
+    # This line must go before than...
+    if addend_node.right_sibling = adder_node.left_child
+      addend_node.right_sibling.left_sibling = addend_node
+    end
+    # ...this one.
     adder_node.left_child = addend_node
 
     adder_node.rank += 1

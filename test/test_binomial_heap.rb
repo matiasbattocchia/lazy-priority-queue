@@ -30,7 +30,8 @@ describe MinPriorityQueue do
   end
 
   it 'hapiness' do
-    10.times do |n|
+    10.times do
+      n = rand(100)
       @queue.enqueue n, n
     end
 
