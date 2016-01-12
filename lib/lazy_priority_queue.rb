@@ -1,4 +1,4 @@
-module LazyPriorityQueue
+class LazyPriorityQueue
 
   Node = Struct.new :element,
                     :key,
@@ -31,6 +31,9 @@ module LazyPriorityQueue
 
     raise 'Element provided is not in the queue.' unless node
 
+    test_node = node.clone
+    test_node.key = new_key
+    raise 'Priority can only be changed to a more prioritary value.' unless @heap_property[test_node, node]
 
     node.key = new_key
     node = sift_up node
@@ -77,7 +80,7 @@ module LazyPriorityQueue
   private
 
   def sift_up node
-    return node unless node.parent and @heap_property[node, node.parent]
+    return node unless node.parent and not @heap_property[node.parent, node]
 
     node.parent.key, node.key = node.key, node.parent.key
     node.parent.element, node.element = node.element, node.parent.element
@@ -128,17 +131,13 @@ module LazyPriorityQueue
   end
 end
 
-class MinPriorityQueue
-  include LazyPriorityQueue
-
+class MinPriorityQueue < LazyPriorityQueue
   def initialize
     super(-Float::INFINITY) { |parent_node, child_node| parent_node.key <= child_node.key }
   end
 end
 
-class MaxPriorityQueue
-  include LazyPriorityQueue
-
+class MaxPriorityQueue < LazyPriorityQueue
   def initialize
     super( Float::INFINITY) { |parent_node, child_node| parent_node.key >= child_node.key }
   end

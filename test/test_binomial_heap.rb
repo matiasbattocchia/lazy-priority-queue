@@ -6,40 +6,29 @@ describe MinPriorityQueue do
     @queue = MinPriorityQueue.new
   end
 
-  it 'must enqueue elements' do
-    @queue.enqueue :a, 1
-    @queue.enqueue :b, 2
-    @queue.enqueue :c, 3
-    @queue.enqueue :d, 4
-    @queue.enqueue :e, 5
-
-    @queue.dequeue.must_equal :a
-    @queue.change_priority :c, -1
-
-    @queue.dequeue.must_equal :c
-    @queue.dequeue.must_equal :b
-    @queue.dequeue.must_equal :d
-    @queue.dequeue.must_equal :e
-    @queue.dequeue.must_be_nil
-  end
-
   it 'sorts lots of elements' do
     Item = Struct.new :id, :priority
 
+    references = @queue.instance_variable_get(:@references)
     items = []
 
-    100.times do |id|
-      priority = rand(1000)
-      items << @queue.enqueue(Item.new(id, priority), priority)
-    end
-
-    50.times do
-      case rand(2)
-      when 0
+    10000.times do |id|
+      case rand(10)
+      when 0..5 # enqueue
+        priority = rand(1000)
+        items << @queue.enqueue(Item.new(id, priority), priority)
+      when 6 # change_priority
         item = items.sample
-        @queue.change_priority item, item.priority -= rand(100)
-      when 1
+        node = references.delete item
+        priority = item.priority -= rand(1000)
+        references[item] = node
+        @queue.change_priority item, priority
+      when 7 # dequeue
         items.delete @queue.dequeue
+      when 8 # peek
+        @queue.peek
+      when 9 # delete
+        items.delete @queue.delete(items.sample)
       end
     end
 
