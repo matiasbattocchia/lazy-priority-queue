@@ -94,25 +94,21 @@ PriorityQueueCxx | 1.69 | 0.00 | 1.69 | 1.69
 PriorityQueue (supertinou) | 4.33 | 0.01 | 4.34 | 4.33
 PriorityQueue (ninjudd) | Still waiting...
 
-Lazy priority queue is recommended if you are seeking a pure Ruby implementation of a priority queue capable (or not) of
-modifying the priority of its elements. Otherwise, in the field of low-level extended Ruby, supertinou's PriorityQueue
-is the right choice; and if you do not need changing priorities at all, PriorityQueueCxx is the one.
+**Lazy priority queue** is recommended if you are seeking a pure Ruby implementation of a priority queue capable (or not) of
+modifying the priority of its elements. Otherwise, in the field of low-level extended Ruby, supertinou's **PriorityQueue**
+is the right choice; and if you do not need changing priorities at all, **PriorityQueueCxx** is the one.
 
-### Algorithms (0.6.1)
-
-https://github.com/kanwei/algorithms
+### [Algorithms (0.6.1)](https://github.com/kanwei/algorithms)
 
 Pure Ruby | Fibonacci heap | Elements are identified by their priority: change priority is not supported except through a hack.
 
 Lazy priority queue —which is based on a lazy binomial heap— performed 2 times better than Algorithms.
-Issue kanwei/algorithms/issues/23 motivated the writing of this library.
+Issue [kanwei/algorithms#23](https://github.com/kanwei/algorithms/issues/23) motivated the writing of this library.
 
 
 
 
-### PQueue (2.1.0)
-
-https://github.com/rubyworks/pqueue
+### [PQueue (2.1.0)](https://github.com/rubyworks/pqueue)
 
 Pure Ruby | Sorted array | Does not support change priority.
 
@@ -122,9 +118,7 @@ that would sort a reduced number of elements satisfactorily.
 
 
 
-### PriorityQueueCxx (0.3.4)
-
-https://github.com/boborbt/priority_queue_cxx
+### [PriorityQueueCxx (0.3.4)](https://github.com/boborbt/priority_queue_cxx)
 
 C++ extension | Sorted array | Does not support change priority.
 
@@ -134,9 +128,7 @@ is the fastest priority queue for Ruby out there.
 
 
 
-### PriorityQueue (supertinou) (0.1.2)
-
-https://github.com/supertinou/priority-queue
+### [PriorityQueue (supertinou) (0.1.2)](https://github.com/supertinou/priority-queue)
 
 C extension | Fibonacci heap | Supports change priority.
 
@@ -145,9 +137,7 @@ supertinou/PriorityQueue outperforms Lazy priority queue.
 
 
 
-### PriorityQueue (ninjudd) (0.2.0)
-
-https://github.com/ninjudd/priority_queue
+### [PriorityQueue (ninjudd) (0.2.0)](https://github.com/ninjudd/priority_queue)
 
 Pure Ruby | Unsorted array | Does not support change priority.
 
