@@ -25,6 +25,8 @@ class LazyPriorityQueue
 
     element
   end
+  alias_method :push, :enqueue
+  alias_method :insert, :enqueue
 
   def change_priority element, new_key
     node = @references[element]
@@ -68,6 +70,7 @@ class LazyPriorityQueue
 
     element
   end
+  alias_method :pop, :dequeue
 
   def delete element
     change_priority element, @top_condition
@@ -76,6 +79,7 @@ class LazyPriorityQueue
 
   def empty?; @references.empty? end
   def size; @references.size end
+  alias_method :length, :size
 
   private
 
@@ -135,10 +139,18 @@ class MinPriorityQueue < LazyPriorityQueue
   def initialize
     super(-Float::INFINITY) { |parent_node, child_node| parent_node.key <= child_node.key }
   end
+
+  alias_method :decrease_key, :change_priority
+  alias_method :min, :peek
+  alias_method :extract_min, :dequeue
 end
 
 class MaxPriorityQueue < LazyPriorityQueue
   def initialize
     super( Float::INFINITY) { |parent_node, child_node| parent_node.key >= child_node.key }
   end
+
+  alias_method :increase_key, :change_priority
+  alias_method :max, :peek
+  alias_method :extract_max, :dequeue
 end

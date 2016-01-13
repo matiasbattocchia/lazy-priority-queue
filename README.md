@@ -24,32 +24,36 @@ queue = MinPriorityQueue.new
 
 There is also a `MaxPriorityQueue` class.
 
-Use `enqueue(element, priority)` to insert an element with a given priority to the queue.
+Use `push(element, priority)` to insert an element with a given priority to the queue.
 
 ```ruby
-queue.enqueue :a, 1
-queue.enqueue :b, 2
-queue.enqueue :c, 3
+queue.push :a, 1  # => :a
+queue.push :b, 2  # => :b
+queue.push :c, 3  # => :c
 ```
 
-`peek()` will retrieve the minimum priority element without removing it from the queue.
+`min()` will retrieve the minimum priority element without removing it from the queue;
+analogously, use `max()` in case of a max-priority queue.
 
 ```ruby
-queue.peek # => :a
+queue.min  # => :a
 ```
 
-`change_priority(element, new_priority)` decreases an element's priority. If it is increased an error will raise.
+`decrease_key(element, new_priority)` decreases an element's priority (trying to increase it will raise
+an error). For a max-priority queue, `increase_key(element, new_priority)` modifies a priority (but will
+not be able to decrease it).
 
 ```ruby
-queue.change_priority :c, 0
+queue.decrease_key :c, 0  # => :c
 ```
 
-Use `dequeue()` to extract the minimum priority element from the queue.
+Use `pop()` to extract the minimum priority element from the queue; or maximum, given a max-priority
+queue.
 
 ```ruby
-queue.dequeue # => :c
-queue.dequeue # => :a
-queue.dequeue # => :b
+queue.pop  # => :c
+queue.pop  # => :a
+queue.pop  # => :b
 ```
 
 Finally, there are these additional instance methods: `delete(element)`, `size` and `empty?`.
@@ -92,7 +96,7 @@ Algorithms | 52.95 | 0.11 | 53.06 | 53.15
 PQueue | 712.55 | 10.67 | 723.22 | 724.96
 PriorityQueueCxx | 1.69 | 0.00 | 1.69 | 1.69
 PriorityQueue (supertinou) | 4.33 | 0.01 | 4.34 | 4.33
-PriorityQueue (ninjudd) | Still waiting...
+PriorityQueue (ninjudd) | - | - | - | - |
 
 **Lazy priority queue** is recommended if you are seeking a pure Ruby implementation of a priority queue capable (or not) of
 modifying the priority of its elements. Otherwise, in the field of low-level extended Ruby, supertinou's **PriorityQueue**
@@ -100,50 +104,40 @@ is the right choice; and if you do not need changing priorities at all, **Priori
 
 ### [Algorithms (0.6.1)](https://github.com/kanwei/algorithms)
 
-Pure Ruby | Fibonacci heap | Elements are identified by their priority: change priority is not supported except through a hack.
+*Pure Ruby* | *Fibonacci heap* | *Elements are identified by their priority: change priority is not supported except through a hack.*
 
 Lazy priority queue —which is based on a lazy binomial heap— performed 2 times better than Algorithms.
 Issue [kanwei/algorithms#23](https://github.com/kanwei/algorithms/issues/23) motivated the writing of this library.
 
 
-
-
 ### [PQueue (2.1.0)](https://github.com/rubyworks/pqueue)
 
-Pure Ruby | Sorted array | Does not support change priority.
+*Pure Ruby* | *Sorted array* | *Does not support change priority.*
 
 PQueue was not as fast as the others. Anyway, it is a really simple implementation
 that would sort a reduced number of elements satisfactorily.
 
 
-
-
 ### [PriorityQueueCxx (0.3.4)](https://github.com/boborbt/priority_queue_cxx)
 
-C++ extension | Sorted array | Does not support change priority.
+*C++ extension* | *Sorted array* | *Does not support change priority.*
 
 PriorityQueueCxx, wrapping the C++ standard library implementation,
 is the fastest priority queue for Ruby out there.
 
 
-
-
 ### [PriorityQueue (supertinou) (0.1.2)](https://github.com/supertinou/priority-queue)
 
-C extension | Fibonacci heap | Supports change priority.
+*C extension* | *Fibonacci heap* | *Supports change priority.*
 
 supertinou/PriorityQueue outperforms Lazy priority queue.
 
 
-
-
 ### [PriorityQueue (ninjudd) (0.2.0)](https://github.com/ninjudd/priority_queue)
 
-Pure Ruby | Unsorted array | Does not support change priority.
+*Pure Ruby* | *Unsorted array* | *Does not support change priority.*
 
-ninjudd/PriorityQueue performed really slow.
-
-
+ninjudd/PriorityQueue did not complete the task in a reasonable amount of time.
 
 
 ## Acknowledgments
