@@ -58,16 +58,6 @@ queue.pop  # => :b
 
 Finally, there are these additional instance methods: `delete(element)`, `size` and `empty?`.
 
-### Considerations
-
-Lazy priority queue relies internally on a Hash to relate enqueued elements and heap nodes.
-If an element is mutated after being pushed into the queue, the queue will no be able to
-recognize it afterwards. This is because Hash use the object's hash function to identify it;
-if the object changes, its hash value too.
-
-By the same reason, Lazy priority queue will treat different objects with identical hash values
-as the same object.
-
 ## Complexity
 
 A lazy binomial heap has these times:
