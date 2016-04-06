@@ -141,6 +141,7 @@ These two lectures on data structures were helpful for writing this library:
 BSD 2-Clause License
 
 Copyright (c) 2016, Matías Battocchia
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
