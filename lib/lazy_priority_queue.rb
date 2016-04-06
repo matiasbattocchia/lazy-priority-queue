@@ -1,5 +1,4 @@
 class LazyPriorityQueue
-
   Node = Struct.new :element,
                     :key,
                     :rank,
@@ -7,15 +6,18 @@ class LazyPriorityQueue
                     :left_child,
                     :right_sibling
 
-  def initialize top_condition, &heap_property
+  def initialize(top_condition, &heap_property)
+    @top = nil
     @roots = []
     @references = {}
     @top_condition = top_condition
     @heap_property = heap_property
   end
 
-  def enqueue element, key
-    raise 'The provided element already is in the queue.' if @references[element]
+  def enqueue(element, key)
+    if @references[element]
+      raise 'The provided element already is in the queue.'
+    end
 
     node = Node.new element, key, 0
 
@@ -25,17 +27,20 @@ class LazyPriorityQueue
 
     element
   end
-  alias_method :push, :enqueue
-  alias_method :insert, :enqueue
+  alias push enqueue
+  alias insert enqueue
 
-  def change_priority element, new_key
+  def change_priority(element, new_key)
     node = @references[element]
 
     raise 'Element provided is not in the queue.' unless node
 
     test_node = node.clone
     test_node.key = new_key
-    raise 'Priority can only be changed to a more prioritary value.' unless @heap_property[test_node, node]
+
+    unless @heap_property[test_node, node]
+      raise 'Priority can only be changed to a more prioritary value.'
+    end
 
     node.key = new_key
     node = sift_up node
@@ -45,7 +50,7 @@ class LazyPriorityQueue
   end
 
   def peek
-    @top and @top.element
+    @top && @top.element
   end
 
   def dequeue
@@ -66,25 +71,30 @@ class LazyPriorityQueue
     end
 
     @roots = coalesce @roots
-    @top = @roots.inject { |top, node| select top, node }
+    @top = @roots.inject { |top, node| select(top, node) }
 
     element
   end
-  alias_method :pop, :dequeue
+  alias pop dequeue
 
-  def delete element
+  def delete(element)
     change_priority element, @top_condition
     dequeue
   end
 
-  def empty?; @references.empty? end
-  def size; @references.size end
-  alias_method :length, :size
+  def empty?
+    @references.empty?
+  end
+
+  def size
+    @references.size
+  end
+  alias length size
 
   private
 
-  def sift_up node
-    return node unless node.parent and not @heap_property[node.parent, node]
+  def sift_up(node)
+    return node unless node.parent && !@heap_property[node.parent, node]
 
     node.parent.key, node.key = node.key, node.parent.key
     node.parent.element, node.element = node.element, node.parent.element
@@ -95,11 +105,11 @@ class LazyPriorityQueue
     sift_up node.parent
   end
 
-  def select parent_node, child_node
+  def select(parent_node, child_node)
     @heap_property[parent_node, child_node] ? parent_node : child_node
   end
 
-  def coalesce trees
+  def coalesce(trees)
     coalesced_trees = []
 
     while tree = trees.pop
@@ -116,11 +126,21 @@ class LazyPriorityQueue
     coalesced_trees.compact
   end
 
-  def add node_one, node_two
-    raise 'Both nodes must hold the same rank.' if node_one.rank != node_two.rank
-    raise 'Both nodes must be roots (no parents).' if node_one.parent || node_two.parent
+  def add(node_one, node_two)
+    if node_one.rank != node_two.rank
+      raise 'Both nodes must hold the same rank.'
+    end
 
-    adder_node, addend_node = @heap_property[node_one, node_two] ? [node_one, node_two] : [node_two, node_one]
+    if node_one.parent || node_two.parent
+      raise 'Both nodes must be roots (no parents).'
+    end
+
+    adder_node, addend_node =
+      if @heap_property[node_one, node_two]
+        [node_one, node_two]
+      else
+        [node_two, node_one]
+      end
 
     addend_node.parent = adder_node
 
@@ -137,20 +157,24 @@ end
 
 class MinPriorityQueue < LazyPriorityQueue
   def initialize
-    super(-Float::INFINITY) { |parent_node, child_node| parent_node.key <= child_node.key }
+    super(-Float::INFINITY) do |parent_node, child_node|
+      parent_node.key <= child_node.key
+    end
   end
 
-  alias_method :decrease_key, :change_priority
-  alias_method :min, :peek
-  alias_method :extract_min, :dequeue
+  alias decrease_key change_priority
+  alias min peek
+  alias extract_min dequeue
 end
 
 class MaxPriorityQueue < LazyPriorityQueue
   def initialize
-    super( Float::INFINITY) { |parent_node, child_node| parent_node.key >= child_node.key }
+    super(Float::INFINITY) do |parent_node, child_node|
+      parent_node.key >= child_node.key
+    end
   end
 
-  alias_method :increase_key, :change_priority
-  alias_method :max, :peek
-  alias_method :extract_max, :dequeue
+  alias increase_key change_priority
+  alias max peek
+  alias extract_max dequeue
 end
